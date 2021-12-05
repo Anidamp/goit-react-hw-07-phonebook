@@ -5,9 +5,9 @@ import { useAddContactMutation, useGetContactsQuery } from '../../serviceApi/Api
 
 export default function ContactForm () {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const [addNewContact] = useAddContactMutation();
-  console.log(useGetContactsQuery())
+  const [phone, setPhone] = useState('');
+  const [addNewContact] = useAddContactMutation()
+  const {data: contacts} = useGetContactsQuery();
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -15,28 +15,35 @@ export default function ContactForm () {
       case'name' :
        setName(value);
        break;
-      case 'number':
-        setNumber(value);
+      case 'phone':
+        setPhone(value);
         break;
       default: 
       return;
     }
   };
 
-  const handleSubmit = e => {
+/*  console.log(useGetContactsQuery()) */
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const contact = {
+    const newContact = {
       name,
-      number,
+      phone,
       id: uuidv4(),
     };
-    addNewContact(contact);
+    if (contacts!==undefined&&contacts.find(
+        (contact) => name.toLowerCase() === contact.name.toLowerCase())){
+            alert('Contact is already added !!!');
+            reset();
+            return;
+        }
+    addNewContact(newContact);
     reset();
   };
 
   const reset = () => {
     setName('');
-    setNumber('')
+    setPhone('')
   };
 
   return (
@@ -55,13 +62,13 @@ export default function ContactForm () {
             />
           </label>
           <label>
-            Number
+            phone
             <input
               className={s.input}
               onChange={handleChange}
               type="tel"
-              name="number"
-              value={number}
+              name="phone"
+              value={phone}
               pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
               title="Номер телефона должен состоять цифр и может содержать пробелы, тире, круглые скобки и может начинаться с +"
               required
